@@ -1,4 +1,4 @@
-//<>// //<>// //<>//
+//<>// //<>//
 
 import controlP5.*;
 import oscP5.*;
@@ -12,8 +12,7 @@ int intervalTime = 83;
 int prevTime = 0;
 
 String ipInput = "10.0.12.202";
-//String ipInput = "127.0.0.1";
-int m;
+
 int puertoInput = 12000;
 
 int myColor1 = color(0, 0, 0);
@@ -89,17 +88,18 @@ Table table;
 String sessionName;
 String messageTime;
 
+int d = day();    // Values from 1 - 31
+int mo = month();  // Values from 1 - 12
+int y = year();   // 2003, 2004, 2005, etc.
+int s = second();  // Values from 0 - 59
+int m = minute();  // Values from 0 - 59
+int h = hour();    // Values from 0 - 23
+int ms = second()/1000;  // Values from 0 - 59
+
+int millis = millis()/10;
 void setup() {
 
-
-  int d = day();    // Values from 1 - 31
-  int mo = month();  // Values from 1 - 12
-  int y = year();   // 2003, 2004, 2005, etc.
-  int s = second();  // Values from 0 - 59
-  int m = minute();  // Values from 0 - 59
-  int h = hour();    // Values from 0 - 23
-
-  sessionName = d+":"+mo+":"+y+"-"+h+":"+m+":"+s;
+  sessionName = d+"_"+mo+"_"+y+"-"+h+"_"+m+"_"+s;
 
   table = new Table();
   table.addColumn("hora");
@@ -107,8 +107,12 @@ void setup() {
   table.addColumn("v2");
   table.addColumn("v3");
   table.addColumn("v4");
+  table.addColumn("v1 crudo");
+  table.addColumn("v2 crudo");
+  table.addColumn("v3 crudo");
+  table.addColumn("v4 crudo");
 
-  size(980, 550);
+  size(1024, 940);
   noStroke();
   frameRate(12);
   cp5 = new ControlP5(this);
@@ -123,75 +127,74 @@ void setup() {
 
   //1
   cp5.addTextfield("canal1_Input")
-    .setPosition(15, 125)
-    .setSize(50, 10)
+    .setPosition(15, 135)
+    .setSize(80, 15)
     .setAutoClear(false)
     ; 
   //2  
   cp5.addTextfield("canal2_Input")
-    .setPosition(width/2+15, 125)
-    .setSize(50, 10)
+    .setPosition(15, 340)
+    .setSize (80, 15)
     .setAutoClear(false)
     ;
   //3
   cp5.addTextfield("canal3_Input")
-    .setPosition(15, 330)
-    .setSize(50, 10)
+    .setPosition(15, 540)
+    .setSize (80, 15)
     .setAutoClear(false)
     ;
   //4
   cp5.addTextfield("canal4_Input")
-    .setPosition(width/2+15, 330)
-    .setSize(50, 10)
+    .setPosition(15, 740)
+    .setSize (80, 15)
     .setAutoClear(false)
     ;
 
   // OUTPUT OSC CHANNEL
   //1
   cp5.addTextfield("canal1_Output")
-    .setPosition(350, 118)
-    .setSize(50, 10)
+    .setPosition(15, 180)
+    .setSize (80, 15)
     .setAutoClear(false)
     ;
   //2
   cp5.addTextfield("canal2_Output")
-    .setPosition(width/2+330, 125)
-    .setSize(50, 10)
+    .setPosition(15, 380)
+    .setSize(80, 15)
     .setAutoClear(false)
     ;
   //3
   cp5.addTextfield("canal3_Output")
-    .setPosition(350, 330)
-    .setSize(50, 10)
+    .setPosition(15, 580)
+    .setSize(80, 15)
     .setAutoClear(false)
     ;
   //4
   cp5.addTextfield("canal4_Output")
-    .setPosition(width/2+330, 330)
-    .setSize(50, 10)
+    .setPosition(15, 780)
+    .setSize(80, 15)
     .setAutoClear(false)
     ;
-
 
   // SATURACION
   //1
   cp5.addSlider("saturacion1")
-    .setPosition(330, 270)
+    .setPosition(width/2+330, 110)
     .setRange(-9, saturacion1)
     ;
   //2
   cp5.addSlider("saturacion2")
-    .setPosition(820, 270)
+    .setPosition(width/2+330, 190+125)
     .setRange(-9, saturacion2)
     ;
   //3
   cp5.addSlider("saturacion3")
-    .setPosition(330, 270+205)
+    .setPosition(width/2+330, 390+125)
     .setRange(-9, saturacion3)
     ;
   //4
   cp5.addSlider("saturacion4")
-    .setPosition(width/2+330, 350+120)
+    .setPosition(width/2+330, 590+125)
     .setRange(-9, saturacion4)
     ;
 
@@ -199,8 +202,8 @@ void setup() {
 
   //1
   grafico1 = cp5.addChart("grafico1")
-    .setPosition(15, 160)
-    .setSize(465, 80)
+    .setPosition(170, 135)
+    .setSize(820, 130)
     .setRange(-1, 1)
     .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
     .setStrokeWeight(3)
@@ -211,8 +214,8 @@ void setup() {
 
   //2
   grafico2 = cp5.addChart("grafico2")
-    .setPosition(width/2+15, 160)
-    .setSize(465, 80)
+    .setPosition(170, 340)
+    .setSize(820, 130)
     .setRange(-1, 1)
     .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
     .setStrokeWeight(1.5)
@@ -222,8 +225,8 @@ void setup() {
 
   //3
   grafico3 = cp5.addChart("grafico3")
-    .setPosition(15, 250+120)
-    .setSize(465, 80)
+    .setPosition (170, 540)
+    .setSize(820, 130)
     .setRange(-1, 1)
     .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
     .setStrokeWeight(1.5)
@@ -233,8 +236,8 @@ void setup() {
 
   //4
   grafico4 = cp5.addChart("grafico4")
-    .setPosition(width/2+15, 250+120)
-    .setSize(465, 80)  
+    .setPosition (170, 740)
+    .setSize(820, 130)  
     .setRange(-1, 1)
     .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
     .setStrokeWeight(1.5)
@@ -246,45 +249,45 @@ void setup() {
   //RECIEVES
   //1
   cp5.addToggle("RECIEVE1")
-    .setPosition(110, 118)
-    .setSize(50, 20)
+    .setPosition(105, 135)
+    .setSize(50, 15)
     ;
   //2
   cp5.addToggle("RECIEVE2")
-    .setPosition(610, 115)
-    .setSize(50, 20)
+    .setPosition(105, 340)
+    .setSize(50, 15)
     ;
   //3
   cp5.addToggle("RECIEVE3")
-    .setPosition(110, 330)
-    .setSize(50, 20)
+    .setPosition(105, 540)
+    .setSize(50, 15)
     ;
   //4  
   cp5.addToggle("RECIEVE4")
-    .setPosition(610, 330)
-    .setSize(50, 20)
+    .setPosition(105, 740)
+    .setSize(50, 15)
     ;
 
   // SWITCH DE ENVIO DE DATOS
   //1
   cp5.addToggle("SEND1")
-    .setPosition(430, 118)
-    .setSize(50, 20)
+    .setPosition(105, 180)
+    .setSize(50, 15)
     ;
   //2
   cp5.addToggle("SEND2")
-    .setPosition(width/2+410, 115)
-    .setSize(50, 20)
+    .setPosition(105, 380)
+    .setSize(50, 15)
     ;
   //3
   cp5.addToggle("SEND3")
-    .setPosition(430, 200+130)
-    .setSize(50, 20)
+    .setPosition(105, 580)
+    .setSize(50, 15)
     ;
   //4
   cp5.addToggle("SEND4")
-    .setPosition(width/2+410, 330)
-    .setSize(50, 20)
+    .setPosition(105, 780)
+    .setSize(50, 15)
     ;
   noStroke();
 }
@@ -292,10 +295,16 @@ void setup() {
 
 void draw() {
   background(255);
-  m = millis()/1000;
+  y = year();  // Values from 0 - 59
+  mo = month();  // Values from 0 - 59
+  d = day();    // Values from 0 - 23
+  s = second();  // Values from 0 - 59
+  m = minute();  // Values from 0 - 59
+  h = hour();    // Values from 0 - 23
+  
   //PANEL DE ESTADO
   println("frameCount on draw: "+frameCount);
-  println("seconds on draw: "+m);
+  println("seconds on draw: "+s);
   pushMatrix();
   fill(255);
   stroke(255);
@@ -305,6 +314,7 @@ void draw() {
   text("IP:" + ipInput, 10, 40);
   text("Recibiendo de" + " " + myRemoteLocation, 10, 60); 
   text("Investigación FASCIA", 10, 80);
+  text("Reloj: "+d+":"+mo+":"+y+"/"+h+":"+m+":"+s+":"+ms, 780, 80);
   popMatrix();
 
   // MODULOS OSC
@@ -313,7 +323,7 @@ void draw() {
   pushMatrix();
   fill(0);
   stroke(255);
-  rect(0, 100, width/2, 200);
+  rect(0, 100, width, 200);
   fill(216, 163, 252);
   text(canal1_Input, 10, 115);
   text(canal1_Output, 260, 115);
@@ -334,77 +344,73 @@ void draw() {
   //2
   pushMatrix();
   fill(0);
-  stroke(255);
-  rect(width/2, 100, width/2, 200);
+  rect(0, 100+200, width, 200);
   fill(255, 247, 0);
-  text(canal2_Input, width/2+10, 115);
-  text(canal2_Output, width/2+260, 115);
+  text(canal2_Input, 10, 200+120);
+  text(canal2_Output, 260, 200+120);
   fill(0, 255, 0);
-
 
   grafico2.push("saturacion2", valor2);
 
-  text("Receiving:", width/2+50, 275);
-  text(valor2Real, width/2+50, 289);
-  if (valor2 >= 0.1) {
-
-    fill(0, 255, 0, 255);
-    rect(width/2+15, 268, 20, 20);
-  }  
-  popMatrix();
-
-  //3
-  pushMatrix();
-  fill(0);
-  rect(0, 100+200, width/2, 200);
-  fill(255, 55, 100);
-  text(canal3_Input, 10, 200+120);
-  text(canal3_Output, 260, 200+120);
-  fill(0, 255, 0);
-
-  grafico3.push("saturacion3", valor3);
-
   text("Receiving:", 50, 478);
-  text(valor3Real, 50, 490);
-  if (valor3 >= 0.1) {
+  text(valor2Real, 50, 490);
+  if (valor2 >= 0.1) {
     fill(0, 255, 0, 255);
     rect(15, 310+160, 20, 20);
   }  
   popMatrix();
 
-  //4
+    //3
   pushMatrix();
   fill(0);
-  rect(width/2, 100+200, width/2, 200);
+  rect(0, 300+200, width, 200);
+  fill(255, 55, 100);
+  text(canal3_Input, 10, 400+120);
+  text(canal3_Output, 260, 400+120);
+  fill(0, 255, 0);
+
+  grafico3.push("saturacion3", valor3);
+
+  text("Receiving:", 50, 678);
+  text(valor3Real, 50, 690);
+  if (valor3 >= 0.1) {
+    fill(0, 255, 0, 255);
+    rect(15, 510+160, 20, 20);
+  }  
+  popMatrix();
+  
+    //4
+  pushMatrix();
+  fill(0);
+  rect(0, 500+200, width, 200);
   fill(255, 142, 3);
-  text(canal4_Input, width/2+10, 318);
-  text(canal4_Output, width/2+260, 318);
-  fill(0, 255, 0);  
+  text(canal4_Input, 10, 600+120);
+  text(canal4_Output, 260, 600+120);
+  fill(0, 255, 0);
+
   grafico4.push("saturacion4", valor4);
-  text("Receiving:", width/2+50, 238+238);
-  text(valor4Real, width/2+50, 245+245);
+
+  text("Receiving:", 50, 878);
+  text(valor4Real, 50, 890);
   if (valor4 >= 0.1) {
     fill(0, 255, 0, 255);
-    rect(width/2+15, 235+235, 20, 20);
-  }
+    rect(15, 710+160, 20, 20);
+  }  
   popMatrix();
+  
+  // BOTON GRABAR SESION
+  
   pushMatrix();
-  fill(0, 0, 200);
+  fill(0, 50, 200);
   rect(0, height-40, width, 40);
   fill(200);
   text("Grabar sesión:", width/2, height-20);
   popMatrix();
-  //save(an_array_of_strings, "filename", "xml");
 }
 
 
 void oscEvent(OscMessage theOscMessage) {
-  int d = day();    // Values from 1 - 31
-  int mo = month();  // Values from 1 - 12
-  int y = year();   // 2003, 2004, 2005, etc.
-  int s = second();  // Values from 0 - 59
-  int m = minute();  // Values from 0 - 59
-  int h = hour();    // Values from 0 - 23
+
 
   messageTime = d+":"+mo+":"+y+"/"+h+":"+m+":"+s;
 
@@ -500,10 +506,13 @@ void guardarData() {
   newRow.setFloat("v2", valor2Real);
   newRow.setFloat("v3", valor3Real);
   newRow.setFloat("v4", valor4Real);
+  newRow.setFloat("v1 crudo", valor1);
+  newRow.setFloat("v2 crudo", valor2);
+  newRow.setFloat("v3 crudo", valor3);
+  newRow.setFloat("v4 crudo", valor4);
   saveTable(table, "data/sesiones/"+sessionName+".csv");
 }
-void mouseMoved() {
-}
+
 void mousePressed() {
   if (SEND1 == false) {
     OscMessage mensaje1 = new OscMessage(canal1_Output);
