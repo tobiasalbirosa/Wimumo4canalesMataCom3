@@ -394,14 +394,14 @@ void oscEvent(OscMessage theOscMessage) {
 void guardarData() {
   TableRow newRow = table.addRow();
   newRow.setString("hora", messageTime);
-  newRow.setFloat("v1", valor1Real);
-  newRow.setFloat("v2", valor2Real);
-  newRow.setFloat("v3", valor3Real);
-  newRow.setFloat("v4", valor4Real);
-  newRow.setFloat("v1 crudo", valor1);
-  newRow.setFloat("v2 crudo", valor2);
-  newRow.setFloat("v3 crudo", valor3);
-  newRow.setFloat("v4 crudo", valor4);
+  newRow.setFloat("v1", valor1);
+  newRow.setFloat("v2", valor2);
+  newRow.setFloat("v3", valor3);
+  newRow.setFloat("v4", valor4);
+  newRow.setFloat("v1 crudo", valor1Real);
+  newRow.setFloat("v2 crudo", valor2Real);
+  newRow.setFloat("v3 crudo", valor3Real);
+  newRow.setFloat("v4 crudo", valor4Real);
   saveTable(table, "data/sesiones/"+sessionName+".csv");
 }
 void mousePressed() {
